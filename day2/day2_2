@@ -1,0 +1,86 @@
+import re
+
+# Define the classes for Game and Cubes
+class Game:
+    def __init__(self, id, tirada, redMin = 0, blueMin = 0, greenMin = 0):
+        self.id = id
+        self.tirada = tirada
+        self.redMin = redMin
+        self.blueMin = blueMin
+        self.greenMin = greenMin
+
+class Tirada:
+    def __init__(self, red, green, blue):
+        self.red = red
+        self.green = green
+        self.blue = blue
+
+
+def readFile(file_path):
+  with open(file_path, "r") as file:
+      lines = file.read().split("\n")
+  return lines;
+
+
+def serializarTirada(set_of_cubes):
+  tirada = Tirada(0, 0, 0)
+
+  cubes = set_of_cubes.split(", ")
+  for cube in cubes:
+    cube = cube.split(" ")
+    color = cube[1]
+    valor = cube[0]
+    if color == "red":
+      tirada.red = int(valor)
+    elif color == "green":
+      tirada.green = int(valor)
+    elif color == "blue":
+      tirada.blue = int(valor)
+  return tirada
+
+def serializarTiradas(sets_of_cubes):
+  tiradas = []
+  for set_of_cubes in sets_of_cubes:
+    tirada = serializarTirada(set_of_cubes)
+    tiradas.append(tirada)
+  return tiradas
+
+def serializeGame(linea):
+  parts = linea.split(": ")
+  game_id = int(parts[0].split(" ")[1])
+  sets_of_cubes = parts[1].split("; ")
+  tiradas = serializarTiradas(sets_of_cubes)
+  return Game(game_id, tiradas)
+
+
+def getGames(lineas):
+  games = []
+  for line in lineas:
+    games.append(serializeGame(line))
+  return games
+
+
+# Game 1: 1 green, 6 red, 4 blue; 2 blue, 6 green, 7 red; 3 red, 4 blue, 6 green; 3 green; 3 blue, 2 green, 1 red
+# Game 2: 2 blue, 4 red, 7 green; 17 red, 3 blue, 2 green; 3 green, 14 red, 1 blue
+
+def setMinCubes(tiradas, game):
+  maxRed = max(tirada.red for tirada in tiradas)
+  maxBlue = max(tirada.blue for tirada in tiradas)
+  maxGreen = max(tirada.green for tirada in tiradas)
+
+  game.redMin = maxRed
+  game.blueMin = maxBlue
+  game.greenMin = maxGreen
+
+
+
+
+lines = readFile("input2.txt")
+games = getGames(lines)
+
+sum = 0
+for game in games:
+  setMinCubes(game.tirada , game)
+  sum += game.redMin * game.blueMin * game.greenMin
+
+print(sum)
