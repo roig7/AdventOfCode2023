@@ -1,0 +1,86 @@
+import re
+
+# Define the classes for Game and Cubes
+class Game:
+    def __init__(self, id, tirada):
+        self.id = id
+        self.tirada = tirada
+
+class Tirada:
+    def __init__(self, red, green, blue):
+        self.red = red
+        self.green = green
+        self.blue = blue
+
+
+def readFile(file_path):
+  with open(file_path, "r") as file:
+      lines = file.read().split("\n")
+  return lines;
+
+
+def serializarTirada(set_of_cubes):
+  tirada = Tirada(0, 0, 0)
+
+  cubes = set_of_cubes.split(", ")
+  for cube in cubes:
+    cube = cube.split(" ")
+    color = cube[1]
+    valor = cube[0]
+    if color == "red":
+      tirada.red = int(valor)
+    elif color == "green":
+      tirada.green = int(valor)
+    elif color == "blue":
+      tirada.blue = int(valor)
+  return tirada
+
+def serializarTiradas(sets_of_cubes):
+  tiradas = []
+  for set_of_cubes in sets_of_cubes:
+    tirada = serializarTirada(set_of_cubes)
+    tiradas.append(tirada)
+  return tiradas
+
+def serializeGame(linea):
+  parts = linea.split(": ")
+  game_id = int(parts[0].split(" ")[1])
+  sets_of_cubes = parts[1].split("; ")
+  tiradas = serializarTiradas(sets_of_cubes)
+  return Game(game_id, tiradas)
+
+
+def getGames(lineas):
+  games = []
+  for line in lineas:
+    games.append(serializeGame(line))
+  return games
+
+
+def validateTirada(tirada):
+  red_limit = 12
+  blue_limit = 14
+  green_limit = 13
+  if(tirada.red > red_limit or tirada.blue > blue_limit or tirada.green > green_limit):
+    return False
+  return True
+
+def validateTiradas(tiradas):
+  for tirada in tiradas:
+    if not validateTirada(tirada):
+      return False
+  return True
+
+lines = readFile("input1.txt")
+games = getGames(lines)
+
+filtered_games = []
+for game in games:
+  if validateTiradas(game.tirada):
+    filtered_games.append(game.id)
+
+sum = 0
+for game_id in filtered_games:
+  sum += game_id
+
+print(sum)
